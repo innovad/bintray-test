@@ -1,0 +1,114 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+  }
+}
+
+plugins {
+    id 'java-library'
+	id "com.jfrog.bintray" version "1.8.4"
+  	id "maven-publish"
+  	id "java"    
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  jcenter()
+}
+
+version = '1.0.3'
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "innovad"
+            name "Adrian Moser"
+            email "test@gmail.com"
+        }
+    }
+
+    scm {
+        url "https://github.com/innovad/bintray-test"
+    }
+}
+
+bintray {
+	user = 'innovad'
+	key = 'XYZ'
+	publications = ['mavenPublication']
+
+	pkg {
+		repo = 'ch.zhaw.iwi.test'
+		name = 'zhawiwitest'
+		userOrg = ''
+		licenses = ['Apache-2.0']
+		vcsUrl = 'https://github.com/innovad/bintray-test.git'
+		version {
+			name = version
+			desc = version
+			released  = new Date()
+		}
+	}
+
+}
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+            groupId 'testgroup'
+            artifactId 'zhawiwitest'
+            version version
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'A bintray upload test.')
+                root.appendNode('name', 'Test Library')
+                root.appendNode('url', 'https://github.com/innovad/bintray-test.git')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+dependencies {
+    // This dependency is exported to consumers, that is to say found on their compile classpath.
+    api 'org.apache.commons:commons-math3:3.6.1'
+
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    implementation 'com.google.guava:guava:23.0'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
