@@ -1,3 +1,9 @@
+/*
+	run with
+	gradlew clean build bintrayUpload -PbintrayUser=XYZ -PbintrayKey=XYZ
+	to upload
+*/
+
 buildscript {
   repositories {
     mavenLocal()
@@ -19,7 +25,7 @@ repositories {
   jcenter()
 }
 
-version = '1.0.3'
+version = '1.0.4'
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -59,8 +65,8 @@ def pomConfig = {
 }
 
 bintray {
-	user = 'innovad'
-	key = 'XYZ'
+	user = bintrayUser
+	key = bintrayKey
 	publications = ['mavenPublication']
 
 	pkg {
